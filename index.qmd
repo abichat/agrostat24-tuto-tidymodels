@@ -160,11 +160,11 @@ Dataset `data_coffee.csv` can be found on GitHub [abichat/agrostat24-tuto-tidymo
 
 Predict `cupper_points` (a score from 0 to 10) based on the following variables:
 
-* Aromatic and flavor characteristics (`aroma`, `flavor`, `aftertaste`, etc.)
+* Aromatic and flavor characteristics (`aroma`, `flavor`, `aftertaste`, etc.).
 
-* Grain characteristics (`species`, `color`, etc.)
+* Grain characteristics (`species`, `color`, etc.).
 
-* Environmental characteristics (`country`, `altitude`, etc.)
+* Environmental characteristics (`country`, `altitude`, etc.).
 
 
 ## Data import
@@ -274,7 +274,7 @@ coffee
 
 ## How to use `{parsnip}`?
 
-Model creation
+Model creation:
 
 ```{r}
 linear_reg(mode = "regression", engine = "lm")
@@ -283,7 +283,7 @@ linear_reg(mode = "regression", engine = "lm")
 
 ## How to use `{parsnip}`?
 
-Model fit
+Model fit:
 
 ```{r}
 linear_reg(mode = "regression", engine = "lm") %>% 
@@ -292,7 +292,7 @@ linear_reg(mode = "regression", engine = "lm") %>%
 
 ## How to use `{parsnip}`?
 
-Prediction
+Prediction:
 
 ```{r}
 linear_reg(mode = "regression", engine = "lm") %>% 
@@ -302,18 +302,28 @@ linear_reg(mode = "regression", engine = "lm") %>%
 
 ## How to use `{parsnip}`?
 
-Statistics and type I anova
+Add predictions:
 
 ```{r}
 linear_reg(mode = "regression", engine = "lm") %>% 
   fit(cupper_points ~ aroma + flavor + species, data = coffee) %>% 
-  extract_fit_engine() %>% # nee to extract `lm` object
+  augment(coffee)
+```
+
+## How to use `{parsnip}`?
+
+Statistics and type I anova:
+
+```{r}
+linear_reg(mode = "regression", engine = "lm") %>% 
+  fit(cupper_points ~ aroma + flavor + species, data = coffee) %>% 
+  extract_fit_engine() %>% # need to extract `lm` object
   summary()
 ```
 
 ## How to use `{parsnip}`?
 
-Type I anova in a tidy way
+Type I anova in a tidy way:
 
 ```{r}
 linear_reg(mode = "regression", engine = "lm") %>% 
@@ -324,7 +334,7 @@ linear_reg(mode = "regression", engine = "lm") %>%
 
 ## How to use `{parsnip}`?
 
-Variable importance
+Variable importance:
 
 ```{r}
 linear_reg(mode = "regression", engine = "lm") %>% 
@@ -690,7 +700,7 @@ workflow(preprocessor = cf_rec,
 workflow(preprocessor = cf_rec, 
          spec = linear_reg()) %>% 
   fit(cf_train) %>% 
-  predict(cf_test) 
+  augment(cf_test) # predict() + bind_cols() works too
 ```
 
 ## Workflow use
@@ -699,18 +709,7 @@ workflow(preprocessor = cf_rec,
 workflow(preprocessor = cf_rec, 
          spec = linear_reg()) %>% 
   fit(cf_train) %>% 
-  predict(cf_test) %>% 
-  bind_cols(cf_test)
-```
-
-## Workflow use
-
-```{r}
-workflow(preprocessor = cf_rec, 
-         spec = linear_reg()) %>% 
-  fit(cf_train) %>% 
-  predict(cf_test) %>% 
-  bind_cols(cf_test) %>% 
+  augment(cf_test) %>% 
   rmse(truth = cupper_points, estimate = .pred)
 ```
 

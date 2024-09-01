@@ -571,9 +571,9 @@ Antoine Bichat
 <p><strong>Goal</strong></p>
 <p>Predict <code>cupper_points</code> (a score from 0 to 10) based on the following variables:</p>
 <ul>
-<li><p>Aromatic and flavor characteristics (<code>aroma</code>, <code>flavor</code>, <code>aftertaste</code>, etc.)</p></li>
-<li><p>Grain characteristics (<code>species</code>, <code>color</code>, etc.)</p></li>
-<li><p>Environmental characteristics (<code>country</code>, <code>altitude</code>, etc.)</p></li>
+<li><p>Aromatic and flavor characteristics (<code>aroma</code>, <code>flavor</code>, <code>aftertaste</code>, etc.).</p></li>
+<li><p>Grain characteristics (<code>species</code>, <code>color</code>, etc.).</p></li>
+<li><p>Environmental characteristics (<code>country</code>, <code>altitude</code>, etc.).</p></li>
 </ul>
 </section>
 <section id="data-import" class="slide level2">
@@ -602,7 +602,7 @@ Antoine Bichat
 <p>Familiarize yourself with the <code>coffee_raw</code> dataset. Are there any outliers or variables that need to be adjusted?</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div class="countdown" id="timer_99d81b12" data-update-every="1" tabindex="0" style="right:30%;bottom:30%;left:30%;">
+<div class="countdown" id="timer_34c7ff38" data-update-every="1" tabindex="0" style="right:30%;bottom:30%;left:30%;">
 <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div>
 <code class="countdown-time"><span class="countdown-digits minutes">10</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
@@ -821,12 +821,35 @@ Coefficients:
 </section>
 <section id="how-to-use-parsnip-3" class="slide level2">
 <h2>How to use <code>{parsnip}</code>?</h2>
-<p>Statistics and type I anova</p>
+<p>Add prediction</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a><span class="fu">linear_reg</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"lm"</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb15-2"><a href=""></a>  <span class="fu">fit</span>(cupper_points <span class="sc">~</span> aroma <span class="sc">+</span> flavor <span class="sc">+</span> species, <span class="at">data =</span> coffee) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-3"><a href=""></a>  <span class="fu">extract_fit_engine</span>() <span class="sc">%&gt;%</span> <span class="co"># nee to extract `lm` object</span></span>
-<span id="cb15-4"><a href=""></a>  <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-3"><a href=""></a>  <span class="fu">augment</span>(coffee)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,338 × 15
+  .pred  .resid cupper_points aroma flavor aftertaste acidity sweetness species
+  &lt;dbl&gt;   &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt; &lt;fct&gt;  
+1  8.74  0.0150          8.75  8.67   8.83       8.67    8.75        10 Arabica
+2  8.62 -0.0357          8.58  8.75   8.67       8.5     8.58        10 Arabica
+3  8.43  0.822           9.25  8.42   8.5        8.42    8.42        10 Arabica
+4  8.46  0.213           8.67  8.17   8.58       8.42    8.42        10 Arabica
+5  8.40  0.177           8.58  8.25   8.5        8.25    8.5         10 Arabica
+6  8.39 -0.0559          8.33  8.58   8.42       8.42    8.5         10 Arabica
+# ℹ 1,332 more rows
+# ℹ 6 more variables: country_of_origin &lt;fct&gt;, variety &lt;fct&gt;,
+#   processing_method &lt;fct&gt;, color &lt;fct&gt;, altitude &lt;dbl&gt;, unit &lt;fct&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="how-to-use-parsnip-4" class="slide level2">
+<h2>How to use <code>{parsnip}</code>?</h2>
+<p>Statistics and type I anova</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a><span class="fu">linear_reg</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"lm"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-2"><a href=""></a>  <span class="fu">fit</span>(cupper_points <span class="sc">~</span> aroma <span class="sc">+</span> flavor <span class="sc">+</span> species, <span class="at">data =</span> coffee) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-3"><a href=""></a>  <span class="fu">extract_fit_engine</span>() <span class="sc">%&gt;%</span> <span class="co"># need to extract `lm` object</span></span>
+<span id="cb17-4"><a href=""></a>  <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -852,14 +875,14 @@ F-statistic: 549.1 on 3 and 1334 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </section>
-<section id="how-to-use-parsnip-4" class="slide level2">
+<section id="how-to-use-parsnip-5" class="slide level2">
 <h2>How to use <code>{parsnip}</code>?</h2>
 <p>Type I anova in a tidy way</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a><span class="fu">linear_reg</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"lm"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb17-2"><a href=""></a>  <span class="fu">fit</span>(cupper_points <span class="sc">~</span> aroma <span class="sc">+</span> flavor <span class="sc">+</span> species, <span class="at">data =</span> coffee) <span class="sc">%&gt;%</span> </span>
-<span id="cb17-3"><a href=""></a>  <span class="co"># extract_fit_engine() %&gt;% # not necessary</span></span>
-<span id="cb17-4"><a href=""></a>  <span class="fu">tidy</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href=""></a><span class="fu">linear_reg</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"lm"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-2"><a href=""></a>  <span class="fu">fit</span>(cupper_points <span class="sc">~</span> aroma <span class="sc">+</span> flavor <span class="sc">+</span> species, <span class="at">data =</span> coffee) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-3"><a href=""></a>  <span class="co"># extract_fit_engine() %&gt;% # not necessary</span></span>
+<span id="cb19-4"><a href=""></a>  <span class="fu">tidy</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 5
   term           estimate std.error statistic   p.value
@@ -871,16 +894,16 @@ F-statistic: 549.1 on 3 and 1334 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </section>
-<section id="how-to-use-parsnip-5" class="slide level2">
+<section id="how-to-use-parsnip-6" class="slide level2">
 <h2>How to use <code>{parsnip}</code>?</h2>
 <p>Variable importance</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href=""></a><span class="fu">linear_reg</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"lm"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb19-2"><a href=""></a>  <span class="fu">fit</span>(cupper_points <span class="sc">~</span> aroma <span class="sc">+</span> flavor <span class="sc">+</span> species, <span class="at">data =</span> coffee) <span class="sc">%&gt;%</span> </span>
-<span id="cb19-3"><a href=""></a>  vip<span class="sc">::</span><span class="fu">vip</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href=""></a><span class="fu">linear_reg</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"lm"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-2"><a href=""></a>  <span class="fu">fit</span>(cupper_points <span class="sc">~</span> aroma <span class="sc">+</span> flavor <span class="sc">+</span> species, <span class="at">data =</span> coffee) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-3"><a href=""></a>  vip<span class="sc">::</span><span class="fu">vip</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
-<img data-src="index_files/figure-revealjs/unnamed-chunk-10-1.png" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="index_files/figure-revealjs/unnamed-chunk-11-1.png" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="change-the-model" class="slide level2">
 <h2>Change the model</h2>
 <div class="panel-tabset">
@@ -888,9 +911,9 @@ F-statistic: 549.1 on 3 and 1334 DF,  p-value: &lt; 2.2e-16</code></pre>
 <div class="tab-content">
 <div id="tabset-2-1">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href=""></a><span class="fu">linear_reg</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"lm"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb20-2"><a href=""></a>  <span class="fu">fit</span>(cupper_points <span class="sc">~</span> aroma <span class="sc">+</span> flavor <span class="sc">+</span> species, <span class="at">data =</span> coffee) <span class="sc">%&gt;%</span> </span>
-<span id="cb20-3"><a href=""></a>  <span class="fu">predict</span>(coffee)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href=""></a><span class="fu">linear_reg</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"lm"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-2"><a href=""></a>  <span class="fu">fit</span>(cupper_points <span class="sc">~</span> aroma <span class="sc">+</span> flavor <span class="sc">+</span> species, <span class="at">data =</span> coffee) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-3"><a href=""></a>  <span class="fu">predict</span>(coffee)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,338 × 1
   .pred
@@ -907,28 +930,28 @@ F-statistic: 549.1 on 3 and 1334 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 <div id="tabset-2-2">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href=""></a><span class="fu">rand_forest</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"ranger"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb22-2"><a href=""></a>  <span class="fu">fit</span>(cupper_points <span class="sc">~</span> aroma <span class="sc">+</span> flavor <span class="sc">+</span> species, <span class="at">data =</span> coffee) <span class="sc">%&gt;%</span> </span>
-<span id="cb22-3"><a href=""></a>  <span class="fu">predict</span>(coffee)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href=""></a><span class="fu">rand_forest</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"ranger"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-2"><a href=""></a>  <span class="fu">fit</span>(cupper_points <span class="sc">~</span> aroma <span class="sc">+</span> flavor <span class="sc">+</span> species, <span class="at">data =</span> coffee) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-3"><a href=""></a>  <span class="fu">predict</span>(coffee)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,338 × 1
   .pred
   &lt;dbl&gt;
-1  8.22
-2  8.21
+1  8.20
+2  8.20
 3  8.17
 4  8.15
-5  8.16
-6  8.11
+5  8.15
+6  8.10
 # ℹ 1,332 more rows</code></pre>
 </div>
 </div>
 </div>
 <div id="tabset-2-3">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href=""></a><span class="fu">boost_tree</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"xgboost"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb24-2"><a href=""></a>  <span class="fu">fit</span>(cupper_points <span class="sc">~</span> aroma <span class="sc">+</span> flavor <span class="sc">+</span> species, <span class="at">data =</span> coffee) <span class="sc">%&gt;%</span></span>
-<span id="cb24-3"><a href=""></a>  <span class="fu">predict</span>(coffee)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href=""></a><span class="fu">boost_tree</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"xgboost"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href=""></a>  <span class="fu">fit</span>(cupper_points <span class="sc">~</span> aroma <span class="sc">+</span> flavor <span class="sc">+</span> species, <span class="at">data =</span> coffee) <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href=""></a>  <span class="fu">predict</span>(coffee)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,338 × 1
   .pred
@@ -945,10 +968,10 @@ F-statistic: 549.1 on 3 and 1334 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 <div id="tabset-2-4">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href=""></a><span class="fu">linear_reg</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"glmnet"</span>, </span>
-<span id="cb26-2"><a href=""></a>           <span class="at">penalty =</span> <span class="fl">0.1</span>, <span class="at">mixture =</span> <span class="fl">0.5</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb26-3"><a href=""></a>  <span class="fu">fit</span>(cupper_points <span class="sc">~</span> aroma <span class="sc">+</span> flavor <span class="sc">+</span> species, <span class="at">data =</span> coffee) <span class="sc">%&gt;%</span> </span>
-<span id="cb26-4"><a href=""></a>  <span class="fu">predict</span>(coffee)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href=""></a><span class="fu">linear_reg</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"glmnet"</span>, </span>
+<span id="cb28-2"><a href=""></a>           <span class="at">penalty =</span> <span class="fl">0.1</span>, <span class="at">mixture =</span> <span class="fl">0.5</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-3"><a href=""></a>  <span class="fu">fit</span>(cupper_points <span class="sc">~</span> aroma <span class="sc">+</span> flavor <span class="sc">+</span> species, <span class="at">data =</span> coffee) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-4"><a href=""></a>  <span class="fu">predict</span>(coffee)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,338 × 1
   .pred
@@ -1031,9 +1054,9 @@ F-statistic: 549.1 on 3 and 1334 DF,  p-value: &lt; 2.2e-16</code></pre>
 <section id="spending-data-budget" class="slide level2">
 <h2>Spending data budget</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb28-2"><a href=""></a>cf_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(coffee, <span class="at">strata =</span> <span class="st">"species"</span>, <span class="at">prop =</span> <span class="dv">3</span><span class="sc">/</span><span class="dv">4</span>)</span>
-<span id="cb28-3"><a href=""></a>cf_split</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb30-2"><a href=""></a>cf_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(coffee, <span class="at">strata =</span> <span class="st">"species"</span>, <span class="at">prop =</span> <span class="dv">3</span><span class="sc">/</span><span class="dv">4</span>)</span>
+<span id="cb30-3"><a href=""></a>cf_split</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;Training/Testing/Total&gt;
 &lt;1003/335/1338&gt;</code></pre>
@@ -1047,8 +1070,8 @@ F-statistic: 549.1 on 3 and 1334 DF,  p-value: &lt; 2.2e-16</code></pre>
 <div class="tab-content">
 <div id="tabset-3-1">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href=""></a>cf_train <span class="ot">&lt;-</span> <span class="fu">training</span>(cf_split)</span>
-<span id="cb30-2"><a href=""></a>cf_train</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href=""></a>cf_train <span class="ot">&lt;-</span> <span class="fu">training</span>(cf_split)</span>
+<span id="cb32-2"><a href=""></a>cf_train</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,003 × 13
   cupper_points aroma flavor aftertaste acidity sweetness species
@@ -1067,8 +1090,8 @@ F-statistic: 549.1 on 3 and 1334 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 <div id="tabset-3-2">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href=""></a>cf_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(cf_split)</span>
-<span id="cb32-2"><a href=""></a>cf_test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href=""></a>cf_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(cf_split)</span>
+<span id="cb34-2"><a href=""></a>cf_test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 335 × 13
   cupper_points aroma flavor aftertaste acidity sweetness species
@@ -1091,9 +1114,9 @@ F-statistic: 549.1 on 3 and 1334 DF,  p-value: &lt; 2.2e-16</code></pre>
 <section id="cross-validation-sets" class="slide level2">
 <h2>Cross-validation sets</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">234</span>)</span>
-<span id="cb34-2"><a href=""></a>cf_cv <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(cf_train, <span class="at">v =</span> <span class="dv">10</span>, <span class="at">repeats =</span> <span class="dv">1</span>) </span>
-<span id="cb34-3"><a href=""></a>cf_cv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">234</span>)</span>
+<span id="cb36-2"><a href=""></a>cf_cv <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(cf_train, <span class="at">v =</span> <span class="dv">10</span>, <span class="at">repeats =</span> <span class="dv">1</span>) </span>
+<span id="cb36-3"><a href=""></a>cf_cv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#  10-fold cross-validation 
 # A tibble: 10 × 2
@@ -1115,8 +1138,8 @@ F-statistic: 549.1 on 3 and 1334 DF,  p-value: &lt; 2.2e-16</code></pre>
 <section id="cross-validation-sets-1" class="slide level2">
 <h2>Cross-validation sets</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href=""></a>first_resample <span class="ot">&lt;-</span> cf_cv<span class="sc">$</span>splits[[<span class="dv">1</span>]]</span>
-<span id="cb36-2"><a href=""></a><span class="fu">analysis</span>(first_resample) <span class="co"># analysis set for training</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href=""></a>first_resample <span class="ot">&lt;-</span> cf_cv<span class="sc">$</span>splits[[<span class="dv">1</span>]]</span>
+<span id="cb38-2"><a href=""></a><span class="fu">analysis</span>(first_resample) <span class="co"># analysis set for training</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 902 × 13
   cupper_points aroma flavor aftertaste acidity sweetness species
@@ -1131,7 +1154,7 @@ F-statistic: 549.1 on 3 and 1334 DF,  p-value: &lt; 2.2e-16</code></pre>
 # ℹ 6 more variables: country_of_origin &lt;fct&gt;, variety &lt;fct&gt;,
 #   processing_method &lt;fct&gt;, color &lt;fct&gt;, altitude &lt;dbl&gt;, unit &lt;fct&gt;</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href=""></a><span class="fu">assessment</span>(first_resample) <span class="co"># assessment set for testing (complementary)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href=""></a><span class="fu">assessment</span>(first_resample) <span class="co"># assessment set for testing (complementary)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 101 × 13
   cupper_points aroma flavor aftertaste acidity sweetness species
@@ -1211,7 +1234,7 @@ F-statistic: 549.1 on 3 and 1334 DF,  p-value: &lt; 2.2e-16</code></pre>
 <h2>Data preprocessing</h2>
 <p>Initialization of the recipe: formula and training dataset.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href=""></a><span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href=""></a><span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code></code></pre>
 </div>
@@ -1237,8 +1260,8 @@ predictor: 12</code></pre>
 <h2>Numerical variables preprocessing</h2>
 <p>Add steps.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href=""></a><span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb47-2"><a href=""></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="co"># center &amp; reduce</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href=""></a><span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) <span class="sc">%&gt;%</span> </span>
+<span id="cb49-2"><a href=""></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="co"># center &amp; reduce</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code></code></pre>
 </div>
@@ -1273,9 +1296,9 @@ predictor: 12</code></pre>
 <h2>Numerical variables preprocessing</h2>
 <p>Estimate preprocessing parameters.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href=""></a><span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb57-2"><a href=""></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb57-3"><a href=""></a>  <span class="fu">prep</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href=""></a><span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) <span class="sc">%&gt;%</span> </span>
+<span id="cb59-2"><a href=""></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb59-3"><a href=""></a>  <span class="fu">prep</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code></code></pre>
 </div>
@@ -1319,10 +1342,10 @@ predictor: 12</code></pre>
 <h2>Numerical variables preprocessing</h2>
 <p>Apply therecipe on <code>cf_train</code>.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href=""></a><span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb70-2"><a href=""></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb70-3"><a href=""></a>  <span class="fu">prep</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb70-4"><a href=""></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href=""></a><span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) <span class="sc">%&gt;%</span> </span>
+<span id="cb72-2"><a href=""></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb72-3"><a href=""></a>  <span class="fu">prep</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb72-4"><a href=""></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,003 × 13
   aroma flavor aftertaste acidity sweetness species country_of_origin variety
@@ -1343,12 +1366,12 @@ predictor: 12</code></pre>
 <h2>Numerical variables preprocessing</h2>
 <p>Check if variables are centered and reduced.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href=""></a><span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb72-2"><a href=""></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb72-3"><a href=""></a>  <span class="fu">prep</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb72-4"><a href=""></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb72-5"><a href=""></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">c</span>(aroma, flavor, aftertaste), </span>
-<span id="cb72-6"><a href=""></a>                   <span class="fu">list</span>(<span class="at">mean =</span> mean, <span class="at">sd =</span> sd))) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href=""></a><span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) <span class="sc">%&gt;%</span> </span>
+<span id="cb74-2"><a href=""></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb74-3"><a href=""></a>  <span class="fu">prep</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb74-4"><a href=""></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb74-5"><a href=""></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">c</span>(aroma, flavor, aftertaste), </span>
+<span id="cb74-6"><a href=""></a>                   <span class="fu">list</span>(<span class="at">mean =</span> mean, <span class="at">sd =</span> sd))) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 6
   aroma_mean aroma_sd flavor_mean flavor_sd aftertaste_mean aftertaste_sd
@@ -1360,11 +1383,11 @@ predictor: 12</code></pre>
 <section id="categorical-variables-preprocessing" class="slide level2">
 <h2>Categorical variables preprocessing</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href=""></a><span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb74-2"><a href=""></a>  <span class="fu">step_unknown</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> <span class="co"># turn NA into "unknown"</span></span>
-<span id="cb74-3"><a href=""></a>  <span class="fu">step_novel</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> <span class="co"># new unseen level will be set to "new"</span></span>
-<span id="cb74-4"><a href=""></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> <span class="co"># dummy binary variables</span></span>
-<span id="cb74-5"><a href=""></a>  <span class="fu">prep</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href=""></a><span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) <span class="sc">%&gt;%</span> </span>
+<span id="cb76-2"><a href=""></a>  <span class="fu">step_unknown</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> <span class="co"># turn NA into "unknown"</span></span>
+<span id="cb76-3"><a href=""></a>  <span class="fu">step_novel</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> <span class="co"># new unseen level will be set to "new"</span></span>
+<span id="cb76-4"><a href=""></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> <span class="co"># dummy binary variables</span></span>
+<span id="cb76-5"><a href=""></a>  <span class="fu">prep</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code></code></pre>
 </div>
@@ -1413,13 +1436,13 @@ predictor: 12</code></pre>
 <section id="categorical-variables-preprocessing-1" class="slide level2">
 <h2>Categorical variables preprocessing</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href=""></a><span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb89-2"><a href=""></a>  <span class="fu">step_unknown</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb89-3"><a href=""></a>  <span class="fu">step_novel</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb89-4"><a href=""></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb89-5"><a href=""></a>  <span class="fu">prep</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb89-6"><a href=""></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb89-7"><a href=""></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="fu">c</span>(<span class="st">"species"</span>, <span class="st">"color"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href=""></a><span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) <span class="sc">%&gt;%</span> </span>
+<span id="cb91-2"><a href=""></a>  <span class="fu">step_unknown</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb91-3"><a href=""></a>  <span class="fu">step_novel</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb91-4"><a href=""></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb91-5"><a href=""></a>  <span class="fu">prep</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb91-6"><a href=""></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb91-7"><a href=""></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="fu">c</span>(<span class="st">"species"</span>, <span class="st">"color"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,003 × 8
   species_Robusta species_unknown species_new color_Bluish.Green color_None
@@ -1441,7 +1464,7 @@ predictor: 12</code></pre>
 <p>Using <code>{recipes}</code> steps, (<a href="https://recipes.tidymodels.org/reference" class="uri">https://recipes.tidymodels.org/reference</a>), find a suitable preprocessing for <code>cf_train</code>.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div class="countdown" id="timer_b2bcfdec" data-update-every="1" tabindex="0" style="right:30%;bottom:30%;left:30%;">
+<div class="countdown" id="timer_f32024d4" data-update-every="1" tabindex="0" style="right:30%;bottom:30%;left:30%;">
 <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div>
 <code class="countdown-time"><span class="countdown-digits minutes">07</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
@@ -1455,25 +1478,25 @@ predictor: 12</code></pre>
 <div class="tab-content">
 <div id="tabset-4-1">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href=""></a>cf_rec <span class="ot">&lt;-</span></span>
-<span id="cb91-2"><a href=""></a>  <span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb91-3"><a href=""></a>  <span class="fu">update_role</span>(unit, <span class="at">new_role =</span> <span class="st">"notused"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb91-4"><a href=""></a>  <span class="fu">step_unknown</span>(variety, processing_method, country_of_origin,</span>
-<span id="cb91-5"><a href=""></a>               color, <span class="at">new_level =</span> <span class="st">"unknown"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb91-6"><a href=""></a>  <span class="fu">step_novel</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb91-7"><a href=""></a>  <span class="fu">step_other</span>(country_of_origin, <span class="at">threshold =</span> <span class="fl">0.01</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb91-8"><a href=""></a>  <span class="fu">step_other</span>(processing_method, variety, <span class="at">threshold =</span> <span class="fl">0.1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb91-9"><a href=""></a>  <span class="fu">step_impute_linear</span>(altitude, </span>
-<span id="cb91-10"><a href=""></a>                     <span class="at">impute_with =</span> <span class="fu">imp_vars</span>(country_of_origin)) <span class="sc">%&gt;%</span> </span>
-<span id="cb91-11"><a href=""></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb91-12"><a href=""></a>  <span class="fu">step_impute_median</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb91-13"><a href=""></a>  <span class="fu">step_zv</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb91-14"><a href=""></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href=""></a>cf_rec <span class="ot">&lt;-</span></span>
+<span id="cb93-2"><a href=""></a>  <span class="fu">recipe</span>(cupper_points <span class="sc">~</span> ., <span class="at">data =</span> cf_train) <span class="sc">%&gt;%</span> </span>
+<span id="cb93-3"><a href=""></a>  <span class="fu">update_role</span>(unit, <span class="at">new_role =</span> <span class="st">"notused"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb93-4"><a href=""></a>  <span class="fu">step_unknown</span>(variety, processing_method, country_of_origin,</span>
+<span id="cb93-5"><a href=""></a>               color, <span class="at">new_level =</span> <span class="st">"unknown"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb93-6"><a href=""></a>  <span class="fu">step_novel</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb93-7"><a href=""></a>  <span class="fu">step_other</span>(country_of_origin, <span class="at">threshold =</span> <span class="fl">0.01</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb93-8"><a href=""></a>  <span class="fu">step_other</span>(processing_method, variety, <span class="at">threshold =</span> <span class="fl">0.1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb93-9"><a href=""></a>  <span class="fu">step_impute_linear</span>(altitude, </span>
+<span id="cb93-10"><a href=""></a>                     <span class="at">impute_with =</span> <span class="fu">imp_vars</span>(country_of_origin)) <span class="sc">%&gt;%</span> </span>
+<span id="cb93-11"><a href=""></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb93-12"><a href=""></a>  <span class="fu">step_impute_median</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb93-13"><a href=""></a>  <span class="fu">step_zv</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb93-14"><a href=""></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-4-2">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href=""></a>cf_rec</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href=""></a>cf_rec</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code></code></pre>
 </div>
@@ -1531,7 +1554,7 @@ notused:    1</code></pre>
 </div>
 <div id="tabset-4-3">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href=""></a><span class="fu">prep</span>(cf_rec)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href=""></a><span class="fu">prep</span>(cf_rec)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code></code></pre>
 </div>
@@ -1598,9 +1621,9 @@ notused:    1</code></pre>
 </div>
 <div id="tabset-4-4">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb131"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb131-1"><a href=""></a>cf_rec <span class="sc">%&gt;%</span> </span>
-<span id="cb131-2"><a href=""></a>  <span class="fu">prep</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb131-3"><a href=""></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb133"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a href=""></a>cf_rec <span class="sc">%&gt;%</span> </span>
+<span id="cb133-2"><a href=""></a>  <span class="fu">prep</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb133-3"><a href=""></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,003 × 37
   aroma flavor aftertaste acidity sweetness altitude unit  cupper_points
@@ -1696,8 +1719,8 @@ notused:    1</code></pre>
 <section id="workflow-use" class="slide level2">
 <h2>Workflow use</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb133"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a href=""></a><span class="fu">workflow</span>(<span class="at">preprocessor =</span> cf_rec, </span>
-<span id="cb133-2"><a href=""></a>         <span class="at">spec =</span> <span class="fu">linear_reg</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb135"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a href=""></a><span class="fu">workflow</span>(<span class="at">preprocessor =</span> cf_rec, </span>
+<span id="cb135-2"><a href=""></a>         <span class="at">spec =</span> <span class="fu">linear_reg</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>══ Workflow ════════════════════════════════════════════════════════════════════
 Preprocessor: Recipe
@@ -1726,9 +1749,9 @@ Computational engine: lm </code></pre>
 <section id="workflow-use-1" class="slide level2">
 <h2>Workflow use</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb135"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a href=""></a><span class="fu">workflow</span>(<span class="at">preprocessor =</span> cf_rec, </span>
-<span id="cb135-2"><a href=""></a>         <span class="at">spec =</span> <span class="fu">linear_reg</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb135-3"><a href=""></a>  <span class="fu">fit</span>(cf_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb137"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a href=""></a><span class="fu">workflow</span>(<span class="at">preprocessor =</span> cf_rec, </span>
+<span id="cb137-2"><a href=""></a>         <span class="at">spec =</span> <span class="fu">linear_reg</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb137-3"><a href=""></a>  <span class="fu">fit</span>(cf_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>══ Workflow [trained] ══════════════════════════════════════════════════════════
 Preprocessor: Recipe
@@ -1807,10 +1830,10 @@ and 28 more lines.</code></pre>
 <section id="workflow-use-2" class="slide level2">
 <h2>Workflow use</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb137"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a href=""></a><span class="fu">workflow</span>(<span class="at">preprocessor =</span> cf_rec, </span>
-<span id="cb137-2"><a href=""></a>         <span class="at">spec =</span> <span class="fu">linear_reg</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb137-3"><a href=""></a>  <span class="fu">fit</span>(cf_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb137-4"><a href=""></a>  <span class="fu">predict</span>(cf_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb139"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a href=""></a><span class="fu">workflow</span>(<span class="at">preprocessor =</span> cf_rec, </span>
+<span id="cb139-2"><a href=""></a>         <span class="at">spec =</span> <span class="fu">linear_reg</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb139-3"><a href=""></a>  <span class="fu">fit</span>(cf_train) <span class="sc">%&gt;%</span> </span>
+<span id="cb139-4"><a href=""></a>  <span class="fu">predict</span>(cf_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,003 × 1
   .pred
@@ -1828,57 +1851,34 @@ and 28 more lines.</code></pre>
 <section id="workflow-use-3" class="slide level2">
 <h2>Workflow use</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb139"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a href=""></a><span class="fu">workflow</span>(<span class="at">preprocessor =</span> cf_rec, </span>
-<span id="cb139-2"><a href=""></a>         <span class="at">spec =</span> <span class="fu">linear_reg</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb139-3"><a href=""></a>  <span class="fu">fit</span>(cf_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb139-4"><a href=""></a>  <span class="fu">predict</span>(cf_test) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 335 × 1
-  .pred
-  &lt;dbl&gt;
-1  8.78
-2  8.55
-3  8.35
-4  8.54
-5  8.29
-6  8.21
-# ℹ 329 more rows</code></pre>
-</div>
-</div>
-</section>
-<section id="workflow-use-4" class="slide level2">
-<h2>Workflow use</h2>
-<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb141"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb141-1"><a href=""></a><span class="fu">workflow</span>(<span class="at">preprocessor =</span> cf_rec, </span>
 <span id="cb141-2"><a href=""></a>         <span class="at">spec =</span> <span class="fu">linear_reg</span>()) <span class="sc">%&gt;%</span> </span>
 <span id="cb141-3"><a href=""></a>  <span class="fu">fit</span>(cf_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb141-4"><a href=""></a>  <span class="fu">predict</span>(cf_test) <span class="sc">%&gt;%</span> </span>
-<span id="cb141-5"><a href=""></a>  <span class="fu">bind_cols</span>(cf_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb141-4"><a href=""></a>  <span class="fu">augment</span>(cf_test) <span class="co"># predict() + bind_cols() works too</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 335 × 14
-  .pred cupper_points aroma flavor aftertaste acidity sweetness species
-  &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt; &lt;fct&gt;  
-1  8.78          8.75  8.67   8.83       8.67    8.75     10    Arabica
-2  8.55          8.5   8.42   8.5        8.33    8.5      10    Arabica
-3  8.35          8.58  8.33   8.42       8.08    8.25     10    Arabica
-4  8.54          8.5   8.25   8.33       8.5     8.25      9.33 Arabica
-5  8.29          8.17  8      8.25       8.08    8.5      10    Arabica
-6  8.21          8.33  8.08   8.25       8       8.17     10    Arabica
+<pre><code># A tibble: 335 × 15
+  .pred  .resid cupper_points aroma flavor aftertaste acidity sweetness species
+  &lt;dbl&gt;   &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt; &lt;fct&gt;  
+1  8.78 -0.0309          8.75  8.67   8.83       8.67    8.75     10    Arabica
+2  8.55 -0.0467          8.5   8.42   8.5        8.33    8.5      10    Arabica
+3  8.35  0.229           8.58  8.33   8.42       8.08    8.25     10    Arabica
+4  8.54 -0.0360          8.5   8.25   8.33       8.5     8.25      9.33 Arabica
+5  8.29 -0.115           8.17  8      8.25       8.08    8.5      10    Arabica
+6  8.21  0.124           8.33  8.08   8.25       8       8.17     10    Arabica
 # ℹ 329 more rows
 # ℹ 6 more variables: country_of_origin &lt;fct&gt;, variety &lt;fct&gt;,
 #   processing_method &lt;fct&gt;, color &lt;fct&gt;, altitude &lt;dbl&gt;, unit &lt;fct&gt;</code></pre>
 </div>
 </div>
 </section>
-<section id="workflow-use-5" class="slide level2">
+<section id="workflow-use-4" class="slide level2">
 <h2>Workflow use</h2>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb143"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a href=""></a><span class="fu">workflow</span>(<span class="at">preprocessor =</span> cf_rec, </span>
 <span id="cb143-2"><a href=""></a>         <span class="at">spec =</span> <span class="fu">linear_reg</span>()) <span class="sc">%&gt;%</span> </span>
 <span id="cb143-3"><a href=""></a>  <span class="fu">fit</span>(cf_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb143-4"><a href=""></a>  <span class="fu">predict</span>(cf_test) <span class="sc">%&gt;%</span> </span>
-<span id="cb143-5"><a href=""></a>  <span class="fu">bind_cols</span>(cf_test) <span class="sc">%&gt;%</span> </span>
-<span id="cb143-6"><a href=""></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> cupper_points, <span class="at">estimate =</span> .pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb143-4"><a href=""></a>  <span class="fu">augment</span>(cf_test) <span class="sc">%&gt;%</span> </span>
+<span id="cb143-5"><a href=""></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> cupper_points, <span class="at">estimate =</span> .pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 3
   .metric .estimator .estimate
@@ -1892,7 +1892,7 @@ and 28 more lines.</code></pre>
 <p>Using the <code>tune::last_fit()</code> function, estimate the RMSE for a random forest model and visualize the correlation between <code>cupper_points</code> and predicted <code>cupper_points</code> on the test data.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div class="countdown" id="timer_a4e5f442" data-update-every="1" tabindex="0" style="right:30%;bottom:30%;left:30%;">
+<div class="countdown" id="timer_bdb6a839" data-update-every="1" tabindex="0" style="right:30%;bottom:30%;left:30%;">
 <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div>
 <code class="countdown-time"><span class="countdown-digits minutes">07</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
@@ -2287,7 +2287,7 @@ Computational engine: ranger </code></pre>
 <p>Using <code>finetune::tune_race_anova()</code> function, optimise elastic-net regression hyperparameters.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div class="countdown" id="timer_bcfb21c9" data-update-every="1" tabindex="0" style="right:30%;bottom:30%;left:30%;">
+<div class="countdown" id="timer_e6c56a04" data-update-every="1" tabindex="0" style="right:30%;bottom:30%;left:30%;">
 <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div>
 <code class="countdown-time"><span class="countdown-digits minutes">07</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
@@ -2604,6 +2604,7 @@ Computational engine: ranger </code></pre>
  backports      1.5.0      2024-05-23 [1] CRAN (R 4.3.3)
  bit            4.0.5      2022-11-15 [1] CRAN (R 4.3.0)
  bit64          4.0.5      2020-08-30 [1] CRAN (R 4.3.0)
+ boot           1.3-30     2024-02-26 [1] CRAN (R 4.3.1)
  broom        * 1.0.6      2024-05-17 [1] CRAN (R 4.3.3)
  class          7.3-22     2023-05-03 [1] CRAN (R 4.3.3)
  cli            3.6.3      2024-06-21 [1] CRAN (R 4.3.3)
@@ -2653,12 +2654,16 @@ Computational engine: ranger </code></pre>
  lhs            1.2.0      2024-06-30 [1] CRAN (R 4.3.3)
  lifecycle      1.0.4      2023-11-07 [1] CRAN (R 4.3.1)
  listenv        0.9.1      2024-01-29 [1] CRAN (R 4.3.1)
+ lme4           1.1-35.5   2024-07-03 [1] CRAN (R 4.3.3)
  lubridate    * 1.9.3      2023-09-27 [1] CRAN (R 4.3.1)
  magrittr       2.0.3      2022-03-30 [1] CRAN (R 4.3.0)
  MASS           7.3-60.0.1 2024-01-13 [1] CRAN (R 4.3.3)
  Matrix       * 1.6-5      2024-01-11 [1] CRAN (R 4.3.3)
+ minqa          1.2.8      2024-08-17 [1] CRAN (R 4.3.3)
  modeldata    * 1.4.0      2024-06-19 [1] CRAN (R 4.3.3)
  munsell        0.5.1      2024-04-01 [1] CRAN (R 4.3.1)
+ nlme           3.1-166    2024-08-14 [1] CRAN (R 4.3.3)
+ nloptr         2.1.1      2024-06-25 [1] CRAN (R 4.3.3)
  nnet           7.3-19     2023-05-03 [1] CRAN (R 4.3.3)
  parallelly     1.38.0     2024-07-27 [1] CRAN (R 4.3.3)
  parsnip      * 1.2.1      2024-03-22 [1] CRAN (R 4.3.1)
@@ -2674,7 +2679,7 @@ Computational engine: ranger </code></pre>
  Rcpp           1.0.13     2024-07-17 [1] CRAN (R 4.3.3)
  readr        * 2.1.5      2024-01-10 [1] CRAN (R 4.3.1)
  recipes      * 1.1.0.9000 2024-07-08 [1] Github (tidymodels/recipes@0319a20)
- rlang          1.1.4      2024-06-04 [1] CRAN (R 4.3.3)
+ rlang        * 1.1.4      2024-06-04 [1] CRAN (R 4.3.3)
  rmarkdown      2.28       2024-08-17 [1] CRAN (R 4.3.3)
  rpart          4.1.23     2023-12-05 [1] CRAN (R 4.3.1)
  rsample      * 1.2.1      2024-03-25 [1] CRAN (R 4.3.1)
@@ -2704,7 +2709,7 @@ Computational engine: ranger </code></pre>
  workflows    * 1.1.4      2024-02-19 [1] CRAN (R 4.3.1)
  workflowsets * 1.1.0      2024-03-21 [1] CRAN (R 4.3.1)
  xfun           0.47       2024-08-17 [1] CRAN (R 4.3.3)
- xgboost        1.7.8.1    2024-07-24 [1] CRAN (R 4.3.3)
+ xgboost      * 1.7.8.1    2024-07-24 [1] CRAN (R 4.3.3)
  yaml           2.3.10     2024-07-26 [1] CRAN (R 4.3.3)
  yardstick    * 1.3.1      2024-03-21 [1] CRAN (R 4.3.1)
 
