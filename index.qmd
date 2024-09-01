@@ -1,0 +1,1183 @@
+---
+title: "Creation of an end-to-end machine learning pipeline with {tidymodels}"
+author: "Antoine Bichat"
+institute: "Servier"
+date: today
+date-format: "[AgroStat 2024 – Bragança]"
+format:
+  revealjs:
+    logo: "img/logo_servier.png"
+    footer: "AgroStat 2024 – Bragança"
+    slide-number: c
+    width: 1280
+    height: 720
+    theme: agrostat24.scss
+    include-after-body: clean_title_page.html
+    scrollable: true
+title-slide-attributes:
+  data-background-image: "img/logo_agrostat.png"
+  data-background-size: 30%
+  data-background-repeat: repeat
+filters:
+  - reveal-auto-agenda
+knitr: 
+  opts_chunk:
+    fig.align: center
+execute: 
+  echo: true
+  warning: false
+  eval: true
+---
+
+# Intro
+
+## Slides {.smaller}
+
+The slides can be found at <https://abichat.github.io/agrostat24-tuto-tidymodels>.
+
+Raw material is available at <https://github.com/abichat/agrostat24-tuto-tidymodels>.
+
+<div class="center-content">
+  <img src="img/qr_slides.svg" height="300">
+  <img src="img/qr_repo.svg" height="300">
+</div>
+
+
+## Presentation 
+
+:::: {.columns}
+::: {.column width="50%"}
+Data scientist @ Servier
+
+* Exploratory data analysis
+
+* Oncology, pediatric cancers
+
+* R, packages, shiny apps
+
+
+Personal & open source packages:
+
+<div class="center-content">
+  <a href="https://abichat.github.io/yatah/"><img src="img/hex_yatah.png" height="200"></a>
+  <a href="https://abichat.github.io/scimo/"><img src="img/hex_scimo.png" height="200"></a>
+</div>
+:::
+
+::: {.column width="10%"}
+:::
+
+
+::: {.column width="30%"}
+<br>
+<div class="center-content-v">
+<img class="circular-square" src="img/ab.jpg" width="250"/>
+
+<img src="img/logo_servier.png" width="300"/>
+</div>
+:::
+
+::: {.column width="10%"}
+:::
+
+::::
+
+
+
+## Content
+
+**What this tutorial is not**
+
+- An R or tidyverse tutorial.
+
+- A machine learning or statistics lesson.
+
+
+**What this tutorial is**
+
+- A tutorial on how to use ML method within the `{tidymodels}` ecosystem.
+
+
+<img src="img/hex_tidymodels.png" height="200" style="display: block; margin-left: auto; margin-right: auto;" />
+
+## Machine learning {.smaller}
+
+![Crédit : <https://apreshill.github.io/tidymodels-it/>](img/MLmap.jpeg)
+
+## `{tidymodels}` ecosystem
+
+<center><iframe src="https://tidymodels.org" width="100%" height="600px"></iframe></center>
+
+## Explore the ecosystem {.smaller}
+
+<div class="center-content">
+  <img src="img/wkf_timymodels_core.png">
+</div>
+
+<br>
+
+**Advantages**
+
+- Format/notation/workflow standardised for several algorithms/methods.
+
+- Encapsulates different parts (e.g. test/train resampling) within a single object.
+
+- Facilitates preprocessing steps, model selection, and hyperparameter optimization.
+
+- Highly modular, each step corresponds to a package.
+
+
+## Packages and options
+
+```{r load-packages}
+#| message: false
+# install.packages(c("tidyverse", "tidymodels",      # metapackages
+#                    "glmnet", "ranger", "xgboost",  # modeling
+#                    "finetune", "corrr", "vip",     # helpers
+#                    "ggforce", "ggrain"))           # dataviz
+
+library(tidyverse) 
+library(tidymodels)
+
+theme_set(theme_light())
+options(pillar.print_min = 6)
+```
+
+
+# Data
+
+## Data {background-image="img/cupping.jpg" background-opacity=0.2 .smaller}
+
+[Coffee Quality Database](https://github.com/jldbc/coffee-quality-database) is a dataset provided by James LeDoux, compiled from review pages of the [Coffee Quality Institute](https://database.coffeeinstitute.org/).
+
+<br>
+
+Dataset `data_coffee.csv` can be found on GitHub [abichat/agrostat24-tuto-tidymodels](https://github.com/abichat/agrostat24-tuto-tidymodels).
+
+<br>
+
+**Goal**
+
+Predict `cupper_points` (a score from 0 to 10) based on the following variables:
+
+* Aromatic and flavor characteristics (`aroma`, `flavor`, `aftertaste`, etc.)
+
+* Grain characteristics (`species`, `color`, etc.)
+
+* Environmental characteristics (`country`, `altitude`, etc.)
+
+
+## Data import
+
+
+```{r get-data}
+coffee_raw <- read_csv("data_coffee.csv")
+coffee_raw
+```
+
+## Your turn!
+
+Familiarize yourself with the `coffee_raw` dataset. Are there any outliers or variables that need to be adjusted?
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 10, seconds = 0,
+                     left = "30%", right = "30%", bottom = "30%")
+```
+
+## Solution
+
+::: panel-tabset
+#### Scores
+
+```{r}
+#| code-fold: true
+coffee_raw %>% 
+  select(cupper_points:acidity) %>% 
+  pivot_longer(everything()) %>% 
+  ggplot() +
+  aes(x = value, y = name, fill = name) +
+  geom_violin() +
+  geom_boxplot(alpha = 0) +
+  ggforce::geom_sina(size = 0.5) +
+  labs(x = "Scores", y = NULL) +
+  theme(legend.position = "none")
+```
+
+#### Altitude
+
+```{r}
+#| code-fold: true
+ggplot(coffee_raw) +
+  aes(x = unit, y = altitude, color = unit) +
+  ggrain::geom_rain() +
+  scale_y_log10() +
+  labs(x = "Unit", y = "Altitude") +
+  theme(legend.position = "none")
+```
+
+#### Correlations
+
+```{r cor}
+#| code-fold: true
+library(corrr)
+coffee_raw %>% 
+  select(where(is.numeric)) %>% 
+  correlate(method = "pearson", use = "complete.obs") %>%
+  shave() %>% 
+  rplot(print_cor = TRUE)
+```
+:::
+
+## Data cleaning
+
+```{r}
+coffee <-
+  coffee_raw %>% 
+  filter(if_all(cupper_points:acidity, ~ . > 4)) %>% 
+  mutate(across(where(is.character), as_factor),
+         altitude = if_else(unit == "ft", altitude * 0.3048, altitude),
+         altitude = if_else(altitude > 8000, NA, altitude))
+coffee
+```
+
+# `{parsnip}`
+
+## Specify a model with `{parsnip}`
+
+![Credit : [Allison Horst](https://allisonhorst.com/r-packages-functions/)](img/parsnip.png)
+
+## Specify a model with `{parsnip}` {.smaller}
+
+:::: {.columns}
+::: {.column width="80%"}
+1. A `model` (`rand_forest()`, `linear_reg()`...)
+
+2. An `engine` (`ranger`, `randomForest`...)
+
+3. A `mode` (`regression`, `classification`...)
+
+4. Hyperparameters (`trees`, `penalty`...)
+
+:::
+::: {.column width="20%"}
+<img src="img/hex_parsnip.png" height="200" />
+:::
+::::
+
+
+## All models
+
+<https://www.tidymodels.org/find/parsnip/>
+
+<center><iframe src="https://www.tidymodels.org/find/parsnip/" width="100%" height="600px"></iframe></center>
+
+## How to use `{parsnip}`?
+
+Model creation
+
+```{r}
+linear_reg(mode = "regression", engine = "lm")
+```
+
+
+## How to use `{parsnip}`?
+
+Model fit
+
+```{r}
+linear_reg(mode = "regression", engine = "lm") %>% 
+  fit(cupper_points ~ aroma + flavor + species, data = coffee)
+```
+
+## How to use `{parsnip}`?
+
+Prediction
+
+```{r}
+linear_reg(mode = "regression", engine = "lm") %>% 
+  fit(cupper_points ~ aroma + flavor + species, data = coffee) %>% 
+  predict(coffee)
+```
+
+## How to use `{parsnip}`?
+
+Statistics and type I anova
+
+```{r}
+linear_reg(mode = "regression", engine = "lm") %>% 
+  fit(cupper_points ~ aroma + flavor + species, data = coffee) %>% 
+  extract_fit_engine() %>% # nee to extract `lm` object
+  summary()
+```
+
+## How to use `{parsnip}`?
+
+Type I anova in a tidy way
+
+```{r}
+linear_reg(mode = "regression", engine = "lm") %>% 
+  fit(cupper_points ~ aroma + flavor + species, data = coffee) %>% 
+  # extract_fit_engine() %>% # not necessary
+  tidy() 
+```
+
+## How to use `{parsnip}`?
+
+Variable importance
+
+```{r}
+linear_reg(mode = "regression", engine = "lm") %>% 
+  fit(cupper_points ~ aroma + flavor + species, data = coffee) %>% 
+  vip::vip()
+```
+
+## Change the model
+
+::: panel-tabset
+#### Linear regression
+
+```{r lm}
+linear_reg(mode = "regression", engine = "lm") %>% 
+  fit(cupper_points ~ aroma + flavor + species, data = coffee) %>% 
+  predict(coffee)
+```
+
+#### Random forest
+
+```{r rf}
+rand_forest(mode = "regression", engine = "ranger") %>% 
+  fit(cupper_points ~ aroma + flavor + species, data = coffee) %>% 
+  predict(coffee)
+```
+
+#### XGBoost
+
+```{r xgb}
+boost_tree(mode = "regression", engine = "xgboost") %>%
+  fit(cupper_points ~ aroma + flavor + species, data = coffee) %>%
+  predict(coffee)
+```
+
+#### Elastic net
+
+```{r en}
+linear_reg(mode = "regression", engine = "glmnet", 
+           penalty = 0.1, mixture = 0.5) %>% 
+  fit(cupper_points ~ aroma + flavor + species, data = coffee) %>% 
+  predict(coffee)
+```
+:::
+
+# `{rsample}`
+
+## Resampling with `{rsample}` {.smaller}
+
+:::: {.columns}
+::: {.column width="80%"}
+Main purpose: to avoid overfitting.
+
+Used here to **evaluate model performance** in a hold-out setting.
+
+Different types of resampling and associated object classes:
+
+- Class `rsplit` for individual resamples.
+
+- Class `rset` for a collection of resamples.
+
+:::
+::: {.column width="20%"}
+<img src="img/hex_rsample.png" height="200" />
+:::
+::::
+
+## Typical workflow 
+
+![Crédit : [_Feature Engineering and Selection_, Max Kuhn et Kjell Johnson](https://bookdown.org/max/FES)](img/resampling.svg)
+
+::: {.callout-note appearance="simple"  icon=false}
+- For cross-validation, the resampled sets are often called analysis/assessment.
+
+- No data copy.
+:::
+
+
+## Spending data budget
+
+```{r split-data}
+set.seed(123)
+cf_split <- initial_split(coffee, strata = "species", prop = 3/4)
+cf_split
+```
+
+## Training and testing sets
+
+::: panel-tabset
+#### Training set
+
+```{r}
+cf_train <- training(cf_split)
+cf_train
+```
+
+#### Testing set
+
+```{r}
+cf_test <- testing(cf_split)
+cf_test
+```
+:::
+
+## Cross-validation sets
+
+```{r}
+set.seed(234)
+cf_cv <- vfold_cv(cf_train, v = 10, repeats = 1) 
+cf_cv
+```
+
+## Cross-validation sets
+
+```{r}
+first_resample <- cf_cv$splits[[1]]
+analysis(first_resample) # analysis set for training
+assessment(first_resample) # assessment set for testing (complementary)
+```
+
+# `{recipes}`
+
+## Preprocessing with `{recipes}`
+
+![Crédit : [Allison Horst](https://allisonhorst.com/r-packages-functions/)](img/recipes.png)
+
+## Preprocessing with `{recipes}`
+
+:::: {.columns}
+::: {.column width="80%"}
+
+- Handle missing data, errors, and outliers.
+
+- Create new variables by transforming or combining existing ones.
+
+- Normalize or encode existing variables differently.
+
+- In an order defined by `step_*()` functions.
+:::
+
+::: {.column width="20%"}
+<img src="img/hex_recipes.png" height="200" />
+:::
+::::
+
+
+## All recipes
+
+<https://www.tidymodels.org/find/recipes/>
+
+<center><iframe src="https://www.tidymodels.org/find/recipes/" width="100%" height="550px"></iframe></center>
+
+
+## Data preprocessing
+
+Initialization of the recipe: formula and training dataset.
+
+```{r}
+#| message: true
+recipe(cupper_points ~ ., data = cf_train) 
+```
+
+## Numerical variables preprocessing
+
+Add steps.
+
+```{r}
+#| message: true
+recipe(cupper_points ~ ., data = cf_train) %>% 
+  step_normalize(all_numeric_predictors()) # center & reduce
+```
+
+## Numerical variables preprocessing
+
+Estimate preprocessing parameters.
+
+```{r}
+#| message: true
+recipe(cupper_points ~ ., data = cf_train) %>% 
+  step_normalize(all_numeric_predictors()) %>% 
+  prep()
+```
+
+## Numerical variables preprocessing
+
+Apply therecipe on `cf_train`.
+
+```{r}
+recipe(cupper_points ~ ., data = cf_train) %>% 
+  step_normalize(all_numeric_predictors()) %>% 
+  prep() %>% 
+  bake(new_data = NULL)
+```
+
+## Numerical variables preprocessing
+
+Check if variables are centered and reduced.
+
+```{r}
+recipe(cupper_points ~ ., data = cf_train) %>% 
+  step_normalize(all_numeric_predictors()) %>% 
+  prep() %>% 
+  bake(new_data = NULL) %>% 
+  summarise(across(c(aroma, flavor, aftertaste), 
+                   list(mean = mean, sd = sd))) 
+```
+
+## Categorical variables preprocessing
+
+```{r}
+#| message: true
+recipe(cupper_points ~ ., data = cf_train) %>% 
+  step_unknown(all_nominal_predictors()) %>% # turn NA into "unknown"
+  step_novel(all_nominal_predictors()) %>% # new unseen level will be set to "new"
+  step_dummy(all_nominal_predictors()) %>% # dummy binary variables
+  prep() 
+```
+
+
+## Categorical variables preprocessing
+
+```{r}
+recipe(cupper_points ~ ., data = cf_train) %>% 
+  step_unknown(all_nominal_predictors()) %>% 
+  step_novel(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors()) %>% 
+  prep() %>% 
+  bake(new_data = NULL) %>% 
+  select(starts_with(c("species", "color")))
+```
+
+## Your turn!
+
+Using `{recipes}` steps, (<https://recipes.tidymodels.org/reference>), find a suitable preprocessing for `cf_train`.
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 7, seconds = 0,
+                     left = "30%", right = "30%", bottom = "30%")
+```
+
+## Solution
+
+::: panel-tabset
+#### Creation
+
+```{r}
+cf_rec <-
+  recipe(cupper_points ~ ., data = cf_train) %>% 
+  update_role(unit, new_role = "notused") %>% 
+  step_unknown(variety, processing_method, country_of_origin,
+               color, new_level = "unknown") %>%
+  step_novel(all_nominal_predictors()) %>% 
+  step_other(country_of_origin, threshold = 0.01) %>%
+  step_other(processing_method, variety, threshold = 0.1) %>%
+  step_impute_linear(altitude, 
+                     impute_with = imp_vars(country_of_origin)) %>% 
+  step_dummy(all_nominal_predictors()) %>% 
+  step_impute_median(all_numeric_predictors()) %>% 
+  step_zv(all_numeric_predictors()) %>% 
+  step_normalize(all_numeric_predictors())
+```
+
+#### Glimpse
+
+```{r}
+#| message: true
+cf_rec
+```
+
+#### Estimation
+
+```{r}
+#| message: true
+prep(cf_rec)
+```
+
+#### Application
+
+```{r}
+cf_rec %>% 
+  prep() %>% 
+  bake(new_data = NULL)
+```
+:::
+
+# Workflows and metrics
+
+## Combine prepocessing and modeling within a workflow {.smaller}
+
+:::: {.columns}
+::: {.column width="80%"}
+
+Simplify the steps by combining the recipe and the model together.
+
+A single object to handle for various tasks:
+
+* Estimating preprocessing parameters on the training set,
+
+* Estimating model parameters on the training set,
+
+* Applying preprocessing to the test set,
+
+* Predicting and evaluating the model on the test set,
+
+* And more, such as cross-validation.
+
+:::
+
+::: {.column width="20%"}
+<img src="img/hex_workflows.png" height="200" />
+:::
+::::
+
+## Compute metrics with `{yardstick}` {.smaller}
+
+:::: {.columns}
+::: {.column width="80%"}
+
+Set of functions to estimate model quality.
+
+* Input: a data frame, the column of true values, and the column of predictions.
+
+* Output: a data frame with the requested metrics.
+
+:::
+
+::: {.column width="20%"}
+<img src="img/hex_yardstick.png" height="200" />
+:::
+::::
+
+<https://yardstick.tidymodels.org/reference/>
+
+<center><iframe src="https://yardstick.tidymodels.org/reference/" width="100%" height="300px"></iframe></center>
+
+## Workflow use
+
+```{r}
+workflow(preprocessor = cf_rec, 
+         spec = linear_reg())
+```
+
+## Workflow use
+
+```{r}
+workflow(preprocessor = cf_rec, 
+         spec = linear_reg()) %>% 
+  fit(cf_train)
+```
+
+## Workflow use
+
+```{r}
+workflow(preprocessor = cf_rec, 
+         spec = linear_reg()) %>% 
+  fit(cf_train) %>% 
+  predict(cf_train)
+```
+
+## Workflow use
+
+```{r}
+workflow(preprocessor = cf_rec, 
+         spec = linear_reg()) %>% 
+  fit(cf_train) %>% 
+  predict(cf_test) 
+```
+
+## Workflow use
+
+```{r}
+workflow(preprocessor = cf_rec, 
+         spec = linear_reg()) %>% 
+  fit(cf_train) %>% 
+  predict(cf_test) %>% 
+  bind_cols(cf_test)
+```
+
+## Workflow use
+
+```{r}
+workflow(preprocessor = cf_rec, 
+         spec = linear_reg()) %>% 
+  fit(cf_train) %>% 
+  predict(cf_test) %>% 
+  bind_cols(cf_test) %>% 
+  rmse(truth = cupper_points, estimate = .pred)
+```
+
+## Your turn!
+
+Using the `tune::last_fit()` function, estimate the RMSE for a random forest model and visualize the correlation between `cupper_points` and predicted `cupper_points` on the test data.
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 7, seconds = 0,
+                     left = "30%", right = "30%", bottom = "30%")
+```
+
+## Solution
+
+::: panel-tabset
+#### Random forests
+
+```{r}
+cf_lf_rf <-
+  workflow(preprocessor = cf_rec, 
+           spec = rand_forest(mode = "regression")) %>% 
+  last_fit(cf_split)
+cf_lf_rf
+```
+
+#### RMSE
+
+```{r}
+collect_metrics(cf_lf_rf)
+```
+
+#### Visualisation
+
+```{r}
+cf_lf_rf %>% 
+  collect_predictions() %>% 
+  ggplot() +
+  aes(x = cupper_points, y = .pred) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey") +
+  geom_point()
+```
+:::
+
+
+## Workflow for prediction
+
+1. Build the model.
+
+
+## Workflow for prediction
+
+1. Build the model.
+
+2. Create a preprocessing recipe.
+
+
+## Workflow for prediction
+
+1. Build the model.
+
+2. Create a preprocessing recipe.
+
+3. Combine the model and recipe into a workflow.
+
+
+## Workflow for prediction
+
+1. Build the model.
+
+2. Create a preprocessing recipe.
+
+3. Combine the model and recipe into a workflow.
+
+4. Train the workflow using the `fit()` function.
+
+
+## Workflow for prediction
+
+1. Build the model.
+
+2. Create a preprocessing recipe.
+
+3. Combine the model and recipe into a workflow.
+
+4. Train the workflow using the `fit()` function.
+
+5. Use the trained workflow to predict on unseen data with `predict()`.
+
+## Workflow for prediction
+
+1. Build the model.
+
+2. Create a preprocessing recipe.
+
+3. Combine the model and recipe into a workflow.
+
+4. Train the workflow on the training set and predict on the test set using `last_fit()`.
+
+# `{tune}`
+
+## Optimise hyperparameters with `{tune}`
+
+
+:::: {.columns}
+::: {.column width="80%"}
+
+Some preprocessing steps and models require selecting hyperparameters:
+
+* `penalty`, and `mixture` for `linear_reg()`
+
+* `trees`, `mtry` and `min_n` for `rand_forest()`
+
+* `threshold` for `step_other()`
+
+* ...
+:::
+
+::: {.column width="20%"}
+<img src="img/hex_tune.png" height="200" />
+:::
+::::
+
+
+## How to choose your hyperparameters?
+
+```{r}
+#| eval: false
+rand_forest(mode = "regression", trees = 500, mtry = 5, min_n = 5)
+```
+
+## How to choose your hyperparameters?
+
+```{r}
+#| eval: false
+rand_forest(mode = "regression", trees = 500, mtry = 5, min_n = 5)
+rand_forest(mode = "regression", trees = 1000, mtry = 3, min_n = 10)
+```
+
+## How to choose your hyperparameters?
+
+```{r}
+#| eval: false
+rand_forest(mode = "regression", trees = 500, mtry = 5, min_n = 5)
+rand_forest(mode = "regression", trees = 1000, mtry = 3, min_n = 10)
+rand_forest(mode = "regression", trees = tune(), mtry = tune(), min_n = tune())
+```
+
+## How to choose your hyperparameters?
+
+```{r}
+rf_tune <-
+  rand_forest(mode = "regression", engine = "ranger",
+              trees = 500, mtry = tune(), min_n = tune())
+```
+
+
+## How to choose your hyperparameters?
+
+```{r}
+rf_tune <-
+  rand_forest(mode = "regression", engine = "ranger",
+              trees = 500, mtry = tune(), min_n = tune())
+
+wkf_rf_tune <- workflow(preprocessor = cf_rec, spec = rf_tune) 
+wkf_rf_tune
+```
+
+
+## How to choose your hyperparameters?
+
+```{r}
+#| label: tunerf
+#| cache: true
+set.seed(345)
+res_tune <- tune_grid(wkf_rf_tune, cf_cv, grid = 15, 
+                      control = control_grid(verbose = FALSE))
+res_tune
+```
+
+
+## How to choose your hyperparameters?
+
+```{r}
+autoplot(res_tune)
+```
+
+
+## How to choose your hyperparameters?
+
+```{r}
+collect_metrics(res_tune) %>%
+  filter(.metric == "rmse") %>%
+  ggplot() +
+  aes(x = mtry, y = min_n, color = mean, size = mean) +
+  geom_point()
+```
+
+
+## How to choose your hyperparameters?
+
+```{r}
+show_best(res_tune, metric = "rmse")
+```
+
+
+## How to choose your hyperparameters?
+
+```{r}
+param_rf <- select_best(res_tune, metric = "rmse")
+param_rf
+```
+
+
+## How to choose your hyperparameters?
+
+```{r}
+wkf_rf_tune
+```
+
+
+## How to choose your hyperparameters?
+
+```{r}
+wkf_rf_tune %>%
+  finalize_workflow(param_rf)
+```
+
+
+## How to choose your hyperparameters?
+
+```{r}
+wkf_rf_tune %>%
+  finalize_workflow(param_rf) %>%
+  last_fit(cf_split) %>% 
+  collect_metrics()
+```
+
+
+## Your turn!
+
+Using `finetune::tune_race_anova()` function, optimise elastic-net regression hyperparameters. 
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 7, seconds = 0,
+                     left = "30%", right = "30%", bottom = "30%")
+```
+
+
+## Solution
+
+::: panel-tabset
+#### Race
+
+```{r}
+#| label: tuneen
+#| cache: true
+library(finetune)
+wkf_en_tune <- 
+  workflow(preprocessor = cf_rec, 
+           spec = linear_reg(penalty = tune(), mixture = tune(),
+                             engine = "glmnet")) 
+set.seed(456)
+res_race <- tune_race_anova(wkf_en_tune, resamples = cf_cv, grid = 10,
+                            control = control_race(verbose = FALSE,
+                                                   verbose_elim = FALSE))
+```
+
+```{r}
+#| echo: false
+#| include: false
+library(finetune) # if cache is used
+```
+
+
+#### Glimpse
+
+```{r}
+res_race
+```
+
+#### Time saving
+
+```{r}
+plot_race(res_race) # + facet_wrap(~ .config)
+```
+
+#### Metrics
+
+```{r}
+wkf_en_tune %>% 
+  finalize_workflow(select_best(res_race, metric = "rmse")) %>% 
+  last_fit(cf_split) %>% 
+  collect_metrics()
+```
+
+#### Importance
+
+```{r}
+wkf_en_tune %>% 
+  finalize_workflow(select_best(res_race, metric = "rmse")) %>% 
+  last_fit(cf_split) %>% 
+  extract_fit_engine() %>% 
+  vip::vip(mapping = aes(fill = Sign))
+```
+
+:::
+
+
+## Use a workflow to tune hyperparameters
+
+1. Create a workflow with parameters to be optimized in the model and/or the recipe.
+
+
+## Use a workflow to tune hyperparameters
+
+1. Create a workflow with parameters to be optimized in the model and/or the recipe.
+
+2. Train and evaluate the model on different analysis/assessment datasets from cross-validation using `tune_grid()` or a similar function.
+
+
+## Use a workflow to tune hyperparameters
+
+1. Create a workflow with parameters to be optimized in the model and/or the recipe.
+
+2. Train and evaluate the model on different analysis/assessment datasets from cross-validation using `tune_grid()` or a similar function.
+
+3. Retrieve the workflow with the best combination of hyperparameters using `select_best()` or a similar function.
+
+
+## Compare everything with `{workflowsets}` 
+
+Combine recipe and model inside a unique object.
+
+```{r}
+all_models <- 
+   workflow_set(
+      preproc = list(normalized = cf_rec),
+      models = list(lm = linear_reg(), 
+                    rf = rand_forest(mode = "regression"), 
+                    tuned_rf = rand_forest(mode = "regression", trees = 500,
+                                           mtry = param_rf$mtry, min_n = param_rf$min_n), 
+                    boost_tree = boost_tree(mode = "regression", engine = "xgboost")),
+      cross = TRUE)
+all_models
+```
+
+
+## Compare everything with `{workflowsets}` 
+
+```{r}
+all_models %>% 
+  extract_workflow(id = "normalized_rf")
+```
+
+
+## Compare everything with `{workflowsets}` 
+
+```{r}
+#| label: tunews
+#| cache: true
+set.seed(567)
+res_all_models <- 
+   all_models %>% 
+   workflow_map(fn = "fit_resamples", resamples = cf_cv)
+res_all_models
+```
+
+
+## Compare everything with `{workflowsets}` 
+
+```{r}
+autoplot(res_all_models)
+```
+
+
+## Compare everything with `{workflowsets}` 
+
+```{r}
+rank_results(res_all_models, 
+             rank_metric = "rmse", # <- how to order models
+             select_best = TRUE   # <- one point per workflow
+             ) %>% 
+  select(rank, wflow_id, .metric, mean)
+```
+
+# Outro
+
+## Core workflow
+
+<div class="center-content">
+  <img src="img/wkf_timymodels_placeholder.png">
+</div>
+
+## Extended workflow
+
+<div class="center-content">
+  <img src="img/wkf_timymodels_extended.png">
+</div>
+
+
+## References {.smaller}
+
+Official documentation <https://www.tidymodels.org>
+
+Blog posts <https://www.tidyverse.org/tags/tidymodels>
+
+Book _Tidy Modeling with R_, Kuhn & Silge <https://www.tmwr.org> (free online version)
+
+Book _Feature Engineering and Selection_, Kuhn & Johnson <https://bookdown.org/max/FES> (free online version)
+
+<div class="center-content">
+  <img src="img/tmwr.png" height="300">
+  <img src="img/fes.jpeg" height="300">
+</div>
+
+About cupping
+<https://nomadbarista.com/cupping-cafe-ou-la-degustation-du-cafe/>
+
+
+
+## Original tutorial
+
+<br>
+
+:::: {.columns}
+::: {.column width="80%"}
+
+This tutorial was originally co-presented with Julie Aubert.
+
+For the Rencontres R 2023 in Avignon.
+
+<div class="center-content-v">
+  <img src="img/hex_rr23.png" height="200" />
+</div>
+:::
+
+::: {.column width="20%"}
+<div class="center-content-v">
+<img class="circular-square" src="img/ja.jpg" width="250"/>
+
+<img src="img/logo_miaps_inrae.png" width="200"/>
+
+</div>
+:::
+::::
+
+
+## Reproducibility token
+
+```{r}
+sessioninfo::session_info()
+```
+
+## {background-image="img/logo_agrostat.png" background-repeat="repeat" background-size="30%"}
+
+::: footer
+
+:::
+
+<div class="bigcenterwhite">
+**Thanks for your attention!**
+<br><br>
+</div>
+
+[Slides made with Quarto]{.bottomrightwhite}
+
+
+

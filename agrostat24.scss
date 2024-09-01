@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css?family=Muli&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap');
+
+/*-- scss:defaults --*/
+
+$purpleagrostat: #7f3a88;
+
+$body-color: $purpleagrostat !default;
+$link-color: $purpleagrostat !default;
+$code-color: $purpleagrostat;
+$presentation-heading-color: $purpleagrostat !default;
+
+$font-family-sans-serif: 'Muli', serif !default;
+$presentation-heading-font: 'Muli' !default;
+
+$tabset-border-color: #bbb;
+
+$presentation-font-size-root: 35px;
+$presentation-h1-font-size: 2.8em;
+$code-block-font-size: 0.7em;
+
+/*-- scss:rules --*/
+
+.title {
+  font-size: 90px !important;
+  color: white !important;
+  text-shadow: 2px 2px $purpleagrostat !important;
+}
+
+.quarto-title-author-name {
+  color: white !important;
+  font-family: "Montserrat";
+  font-weight: 900;
+}
+
+.quarto-title-affiliation {
+  color: white !important;
+  font-family: "Montserrat";
+}
+
+.date {
+  color: white !important;
+  font-family: "Montserrat";
+}
+
+.last-title {
+  color: $purpleagrostat;
+  text-align: right;
+  text-shadow: 2px 2px $purpleagrostat !important;
+  rotate: z -8deg;
+}
+
+.bottomrightwhite {
+  font-size: 20px;
+  color: white !important;
+  text-shadow: 2px 2px $purpleagrostat !important;
+  position: absolute;
+  bottom: 40px;
+  margin-left: 80%;
+}
+
+.bigcenterwhite {
+  font-size: 90px !important;
+  color: white !important;
+  text-shadow: 2px 2px $purpleagrostat !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0; 
+  text-align: center; 
+}
+
+.circular-square {
+  border-radius: 50%;
+}
+
+.center-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.center-content-v {
+  display: flex;
+  flex-direction: column; 
+  justify-content: center;
+  align-items: center;
+}
+
+.reveal .slide-logo {
+  z-index: -999 !important;
+}
