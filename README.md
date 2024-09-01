@@ -8,7 +8,7 @@ Repository of the tutorial given at [AgroStat 2024 in Bragança, Portugal](http:
 
 ## Pre-requisites
 
-This workshop will be conducted in R. Familiarity with the `{tidyverse}`, especially `{dplyr}`, is recommended. To get the most out of this tutorial, please ensure that you have R version 4.1 or higher (https: //cran.r-project.org), a recent version of RStudio  (https://www.rstudio.com/download), and install the R packages we will use beforehand using the following command:
+This workshop will be conducted in R. Familiarity with the `{tidyverse}`, especially `{dplyr}`, is recommended. To get the most out of this tutorial, please ensure that you have R version 4.1 or higher (https://cran.r-project.org), a recent version of RStudio  (https://www.rstudio.com/download), and install the R packages we will use beforehand using the following command:
 
 ``` r
 install.packages(c("tidyverse", "tidymodels", 
